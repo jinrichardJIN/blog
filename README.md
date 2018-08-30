@@ -81,6 +81,8 @@ this.callback()的返回至是handleRequest这个函数,handleRequest这个函�
       onFinished(res, onerror);
       return fnMiddleware(ctx).then(handleResponse).catch(onerror);
     }
+    
+`this.handbleRequest``fnMiddleware(ctx)`这样有一个函数执行结果，这个函数也正是依次将上下文传递到每一个中间件中。最终返回的是Promise.resolve();
 
 > **compose是什么**
 
@@ -118,14 +120,19 @@ this.callback()的返回至是handleRequest这个函数,handleRequest这个函�
           }
         }
       }
+      
 
-同样跳过上面两个middleware的验证，compose函数返回的是一个带着两个参数的匿名函数，是不是和下面的很像，没错这正式我们的常使用中间件的方式
+同样跳过上面两个对middleware的验证，compose函数返回的是一个带着两个参数的匿名函数，是不是和下面的很像，没错这正式我们的常使用中间件的方式
     
     app.use(function(ctx,next){
       
     })
-compose()最终执行的结果是一个promise对象，`then(res)`中的res正式我们中间件的执行结果
+    
+compose()最终执行的结果始终是一个一个promise对象，依次执行中间件，这里有一个`function next`函数，这个函数是我们自己封装中间件的一个next，也就是意味着，每个中间件的逻辑执行到next(),会将执行权交给下一个中间件，然后等待所以中间件执行结束之后，栈式执行每个中间件后续的逻辑。这里借用一个张很经典的图
+
+  <img src="http://img.php.cn/upload/article/000/000/007/7e9dc74241b557e7c0b26bcd2dac4426-0.png">,
   
+初接触者理解这个图很不知道所云，这里可以先看一下**自己手动实现一个中间件**方便你的理解。
 
 > **use是什么**
 
