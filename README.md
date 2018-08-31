@@ -47,8 +47,11 @@ richard blog
 这里注意的是有的plugin是通过install传入的，有的直接传入，不过都要记得需要将Vue的构造函数当作第一个参数给到我们的插件。
 
 ### 下面vue-router的构造函数
+  Vue.use(router);
+  
+  <img src="https://github.com/jinrichardJIN/blog/blob/master/images/vue/router1.jpeg?raw=true" >
 
- 
+  <img src="https://github.com/jinrichardJIN/blog/blob/master/images/vue/router2.jpeg?raw=true">
 
 
 
