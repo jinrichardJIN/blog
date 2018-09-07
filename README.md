@@ -1,4 +1,4 @@
-# express 中间件 洋葱图
+# express 中间件 洋葱图代码
        
        function Express(){
           let fns = [];
@@ -47,3 +47,6 @@
         app.use(middleware1);
         app.use(middleware2);
         app.use(middleware3);
+ # 打印结果
+ 
+        
