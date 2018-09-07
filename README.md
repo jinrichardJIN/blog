@@ -49,4 +49,5 @@
         app.use(middleware3);
  # 打印结果
  
+<img src="https://github.com/jinrichardJIN/blog/blob/master/images/koa/expressconsole.jpeg?raw=true">
         
