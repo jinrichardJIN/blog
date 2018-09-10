@@ -119,8 +119,8 @@
 
 这里大概知道`defineComputed`它是一个工具型函数，我们关注的仍是主要代码
 
-		3. sharedPropertyDefinition.get = shouldCache ? createComputedGetter(key) : userDef;
-		4. Object.defineProperty(target, key, sharedPropertyDefinition);
+	3. sharedPropertyDefinition.get = shouldCache ? createComputedGetter(key) : userDef;
+	4. Object.defineProperty(target, key, sharedPropertyDefinition);
 
 **3**函数中有`shouldCache`从意思上我们可以得知，缓存的意思。这里涉及到computed很重要的一个特点缓存，**重要**下面是官方的原话
 
