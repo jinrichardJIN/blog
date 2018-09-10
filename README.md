@@ -96,26 +96,26 @@
 
 下面是 **defineComputed**
 	
-	export function defineComputed(target: any, key: string, userDef: Object | Function) {
-		const shouldCache = !isServerRendering();
-		if (typeof userDef === 'function') {
-			sharedPropertyDefinition.get = shouldCache ? createComputedGetter(key) : userDef;
-			sharedPropertyDefinition.set = noop;
-		} else {
-			sharedPropertyDefinition.get = userDef.get
-				? shouldCache && userDef.cache !== false
-					? createComputedGetter(key)
-					: userDef.get
-				: noop;
-			sharedPropertyDefinition.set = userDef.set ? userDef.set : noop;
-		}
-		if (process.env.NODE_ENV !== 'production' && sharedPropertyDefinition.set === noop) {
-			sharedPropertyDefinition.set = function() {
-				warn(`Computed property "${key}" was assigned to but it has no setter.`, this);
-			};
-		}
-		Object.defineProperty(target, key, sharedPropertyDefinition);
-	}
+    export function defineComputed(target: any, key: string, userDef: Object | Function) {
+      const shouldCache = !isServerRendering();
+      if (typeof userDef === 'function') {
+        sharedPropertyDefinition.get = shouldCache ? createComputedGetter(key) : userDef;
+        sharedPropertyDefinition.set = noop;
+      } else {
+        sharedPropertyDefinition.get = userDef.get
+          ? shouldCache && userDef.cache !== false
+            ? createComputedGetter(key)
+            : userDef.get
+          : noop;
+        sharedPropertyDefinition.set = userDef.set ? userDef.set : noop;
+      }
+      if (process.env.NODE_ENV !== 'production' && sharedPropertyDefinition.set === noop) {
+        sharedPropertyDefinition.set = function() {
+          warn(`Computed property "${key}" was assigned to but it has no setter.`, this);
+        };
+      }
+      Object.defineProperty(target, key, sharedPropertyDefinition);
+    }
 
 这里大概知道`defineComputed`它是一个工具型函数，我们关注的仍是主要代码
 
@@ -126,6 +126,27 @@
 
 > 我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。这就意味着只要 message 还没有发生改变，多次访问 reversedMessage 计算属性会立即返回之前的计算结果，而不必再次执行函数。
 
+继续看**createComputedGetter**这个函数 
+  
+    function createComputedGetter(key) {
+      return function computedGetter() {
+        const watcher = this._computedWatchers && this._computedWatchers[key];
+        if (watcher) {
+          if (watcher.dirty) {
+            watcher.evaluate();
+          }
+          if (Dep.target) {
+            watcher.depend();
+          }
+          return watcher.value;
+        }
+      };
+    }
+
+  
+  
+  
+  
 这里我们可以知道了，`defineComputed`这个函数主要是为了在vm这个实例下面增加 `vm.indexReduceOne`和 `vm.indexPlusOne`这两个属性，这两个属性的get分别是在this.computed中对应的两个函数。
 
     
