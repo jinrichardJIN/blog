@@ -1,53 +1,5 @@
-# express 中间件 洋葱图代码
-       
-       function Express(){
-          let fns = [];
-          let app = function(req,res){
-            let i = 0;
-            let next = function(){
-              i++;
-              if(i>=fns.length){
-                return;
-              }
-              fns[i](req,res,next);
-            }
-            fns[0](req,res,next);
-          }
-          app.use = function(fn){
-            fns.push(fn);
-          }
-          return app;
-        }
+# computed详解
 
-        var app = Express();
+##### 当你看到这篇文章的时候，默认你是一个vue的熟练使用者，你已经清楚的了解computed的机制和应用场景，当然如果你还是一个vue的小白，那么本篇文章可能并不是很适合你，你更应该先知道你接下来要了解的是一个怎样的工具，那么让我们开始吧！！！
 
-        http.createServer(app).listen(3000,()=>{
-          console.log('port 3000 is running')
-        })
-
-        /*
-        middleware list
-        */
-
-        function middleware1(req, res, next) {
-          console.log('1 is starting');
-          next();
-          console.log('1 is ending');
-        }
-        function middleware2(req, res, next) {
-          console.log('2 is starting');
-          next();
-          console.log('2 is ending');
-        }
-        function middleware3(req, res, next) {
-          console.log('3 is starting');
-          next();
-          console.log('3 is ending');
-        }
-        app.use(middleware1);
-        app.use(middleware2);
-        app.use(middleware3);
- # 打印结果
- 
-<img src="https://github.com/jinrichardJIN/blog/blob/master/images/koa/expressconsole.jpeg?raw=true">
-        
+### 目录
