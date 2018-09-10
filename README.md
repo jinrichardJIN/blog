@@ -117,7 +117,7 @@
       Object.defineProperty(target, key, sharedPropertyDefinition);
     }
 
-这里大概知道`defineComputed`它是一个工具型函数，我们关注的仍是主要代码
+这里大概知道`defineComputed`它是一个工具型函数，我们关注的仍是主要代码。
 
 	3. sharedPropertyDefinition.get = shouldCache ? createComputedGetter(key) : userDef;
 	4. Object.defineProperty(target, key, sharedPropertyDefinition);
