@@ -162,6 +162,66 @@
 
 	
 ### Watcher是什么
+
+在分析Watcher这段代码之前，我们只关注和computed有主要关系的代码片段，小伙伴一定手边要有一份源码，这样才能感受到和我处在同一个时空！！！
+
+- constructor构造函数
+
+	  constructor
+	  (
+		vm: Component,
+		expOrFn: string | Function,
+		cb: Function,
+		options?: ?Object,
+		isRenderWatcher?: boolean
+	  ) {
+		this.vm = vm
+		if (isRenderWatcher) {
+		  vm._watcher = this
+		}
+		vm._watchers.push(this)
+		// options
+		if (options) {
+		  this.deep = !!options.deep
+		  this.user = !!options.user
+		  this.lazy = !!options.lazy
+		  this.sync = !!options.sync
+		} else {
+		  this.deep = this.user = this.lazy = this.sync = false
+		}
+		this.cb = cb
+		this.id = ++uid // uid for batching
+		this.active = true
+		this.dirty = this.lazy // for lazy watchers
+		this.deps = []
+		this.newDeps = []
+		this.depIds = new Set()
+		this.newDepIds = new Set()
+		this.expression = process.env.NODE_ENV !== 'production'
+		  ? expOrFn.toString()
+		  : ''
+		// parse expression for getter
+		if (typeof expOrFn === 'function') {
+		  this.getter = expOrFn
+		} else {
+		  this.getter = parsePath(expOrFn)
+		  if (!this.getter) {
+			this.getter = function () {}
+			process.env.NODE_ENV !== 'production' && warn(
+			  `Failed watching path: "${expOrFn}" ` +
+			  'Watcher only accepts simple dot-delimited paths. ' +
+			  'For full control, use a function instead.',
+			  vm
+			)
+		  }
+		}
+		this.value = this.lazy
+		  ? undefined
+		  : this.get()
+	  }
+构造函数和computed主要片段
+
+	
 	
 	
 
