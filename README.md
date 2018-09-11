@@ -10,7 +10,15 @@
         },
         indexReduceOne:function(){
           return this.index-1;
-        }
+        },
+		ImObject:{
+          get(){
+
+          },
+          set(){
+
+          }
+		}
       }
     })
 
@@ -126,6 +134,8 @@
 
 > 我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。这就意味着只要 message 还没有发生改变，多次访问 reversedMessage 计算属性会立即返回之前的计算结果，而不必再次执行函数。
 
+这里我们可以知道了，`defineComputed`这个函数主要是为了在vm这个实例下面增加 `vm.indexReduceOne`和 `vm.indexPlusOne`这两个属性，这两个属性的get分别是在this.computed中对应的两个函数。
+
 继续看**createComputedGetter**这个函数 
   
     function createComputedGetter(key) {
@@ -142,12 +152,23 @@
         }
       };
     }
+`createComputedGetter`函数可能是最不容易理解那个，暂且我们先不去解释watcher下面的几个函数概念，会在分析`Watcher`的时候分别回来解释这些函数的用途。
 	
-看完这个函数
+这段代码是我们的代码的结束，`return watcher.value` 也就是我们计算属性的`get`返回值。也是我们分析`InitComputed`结束，我们先大致总结下这个函数主要做了哪些事。
+
+- 将我们this.computed下面的计算属性分别实例一个watcher对象放到`this._computedWatchers`数组里面。
+- 将我们this.computed下面的每一个计算属性都定义在vm这个实例对象下面，并且这个属性的get就是我们计算属性函数。**这里也就是为什么computed属性对应的一定要是函数，要不然就是拥有get的对象**
+
+
+	
+### Watcher是什么
+	
+	
+
   
   
   
-这里我们可以知道了，`defineComputed`这个函数主要是为了在vm这个实例下面增加 `vm.indexReduceOne`和 `vm.indexPlusOne`这两个属性，这两个属性的get分别是在this.computed中对应的两个函数。
+
 
     
     
