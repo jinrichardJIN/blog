@@ -23,14 +23,15 @@
     })
 
 ##### 当你看到这篇文章的时候，默认你是一个vue的熟练使用者，你已经清楚的了解computed的机制和应用场景，当然如果你还是一个vue的小白，那么本篇文章可能并不是很适合你，你更应该先知道你接下来要了解的是一个怎样的工具，那么让我们开始吧！！！
+##### vue的代码精彩并不仅仅在每一个函数的实现上，而是对这些函数的分工的考虑，更值得我们去学习。
 
 ### 目录
 
- - computed是什么？
+ - computed是什么？ 源头**initComputed**
  - 初始化computed函数
- - 为什么this.data变化会告知computed this.computed变量
- - Dep是什么？
  - watcher是什么？
+ - 为什么this.data变化会告知computed this.computed变量 源头**initData**
+ - Dep是什么？
  - 我的疑问？？？ computed的更新视图，是在哪一步完成的
  
 ### computed是什么？
@@ -221,14 +222,318 @@
 	  }
 构造函数和computed主要片段
 
+### 分割线 记录搁置了好几天。。。。。/真的好烦哦！！！！
+
+	// 记住这个getter
+	this.getter = expOrFn 
+	
+	// 这里第一次不会执行this.get() 但是我们还是会在下面介绍get这个函数
+	this.value = this.lazy
+		  ? undefined
+		  : this.get()
+		  
+### Watcher.get
+
+	get () {
+    pushTarget(this)
+    let value
+    const vm = this.vm
+    try {
+      value = this.getter.call(vm, vm)
+    } catch (e) {
+      if (this.user) {
+        handleError(e, vm, `getter for watcher "${this.expression}"`)
+      } else {
+        throw e
+      }
+    } finally {
+      // "touch" every property so they are all tracked as
+      // dependencies for deep watching
+      if (this.deep) {
+        traverse(value)
+      }
+      popTarget()
+      this.cleanupDeps()
+    }
+    return value
+  }
+很简洁的代码，但是确实有一个非常巧妙的实现。
+
+	// 这个会在下面讲到
+	pushTarget(this)
+	
+	// 在赋值的同时，同样会执行this.getter这个函数，具体可以看下call的用法。
+	value = this.getter.call(vm, vm)
+
+很重要的一点***重要***在执行this.getter函数的同时，同样会进行对data内部的属性进行访问，也就这是在这里***这里***，实现了computed的对data属性的订阅。
 
 	
-	
-	
+### 为什么this.data变化会告知computed this.computed变量？
 
-  
-  
-  
+同样我们直接去看data.getter做了哪些操作，同样的套路我们看InitData，不过我们主要还是看Data的getter所以，不对initData这个函数进行细致分析。
+
+	function initData(vm: Component) {
+	  let data = vm.$options.data;
+	  data = vm._data = typeof data === 'function' ? getData(data, vm) : data || {};
+	  if (!isPlainObject(data)) {
+		data = {};
+		process.env.NODE_ENV !== 'production' &&
+		  warn(
+			'data functions should return an object:\n' +
+			  'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
+			vm
+		  );
+	  }
+	  // proxy data on instance
+	  const keys = Object.keys(data);
+	  const props = vm.$options.props;
+	  const methods = vm.$options.methods;
+	  let i = keys.length;
+	  while (i--) {
+		const key = keys[i];
+		if (process.env.NODE_ENV !== 'production') {
+		  if (methods && hasOwn(methods, key)) {
+			warn(`Method "${key}" has already been defined as a data property.`, vm);
+		  }
+		}
+		if (props && hasOwn(props, key)) {
+		  process.env.NODE_ENV !== 'production' &&
+			warn(`The data property "${key}" is already declared as a prop. ` + `Use prop default value instead.`, vm);
+		} else if (!isReserved(key)) {
+		  proxy(vm, `_data`, key);
+		}
+	  }
+	  // observe data
+	  observe(data, true /* asRootData */);
+	}
+看主要代码
+ 	
+	observe(data, true /* asRootData */);
+	
+##### observer
+	
+	export function observe (value: any, asRootData: ?boolean): Observer | void {
+	  if (!isObject(value) || value instanceof VNode) {
+		return
+	  }
+	  let ob: Observer | void
+	  if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
+		ob = value.__ob__
+	  } else if (
+		shouldObserve &&
+		!isServerRendering() &&
+		(Array.isArray(value) || isPlainObject(value)) &&
+		Object.isExtensible(value) &&
+		!value._isVue
+	  ) {
+		ob = new Observer(value)
+	  }
+	  if (asRootData && ob) {
+		ob.vmCount++
+	  }
+	  return ob
+	}
+	
+#### Observer
+
+	export class Observer {
+	  value: any;
+	  dep: Dep;
+	  vmCount: number; // number of vms that has this object as root $data
+
+	  constructor (value: any) {
+		this.value = value
+		this.dep = new Dep()
+		this.vmCount = 0
+		def(value, '__ob__', this)
+		if (Array.isArray(value)) {
+		  const augment = hasProto
+			? protoAugment
+			: copyAugment
+		  augment(value, arrayMethods, arrayKeys)
+		  this.observeArray(value)
+		} else {
+		  this.walk(value)
+		}
+	  }
+
+	  /**
+	   * Walk through each property and convert them into
+	   * getter/setters. This method should only be called when
+	   * value type is Object.
+	   */
+	  walk (obj: Object) {
+		const keys = Object.keys(obj)
+		for (let i = 0; i < keys.length; i++) {
+		  defineReactive(obj, keys[i])
+		}
+	  }
+
+	  /**
+	   * Observe a list of Array items.
+	   */
+	  observeArray (items: Array<any>) {
+		for (let i = 0, l = items.length; i < l; i++) {
+		  observe(items[i])
+		}
+	  }
+	}
+	
+#### defineReactive重头戏代码
+
+	export function defineReactive (
+	  obj: Object,
+	  key: string,
+	  val: any,
+	  customSetter?: ?Function,
+	  shallow?: boolean
+	) {
+	  const dep = new Dep()
+
+	  const property = Object.getOwnPropertyDescriptor(obj, key)
+	  if (property && property.configurable === false) {
+		return
+	  }
+
+	  // cater for pre-defined getter/setters
+	  const getter = property && property.get
+	  if (!getter && arguments.length === 2) {
+		val = obj[key]
+	  }
+	  const setter = property && property.set
+
+	  let childOb = !shallow && observe(val)
+	  Object.defineProperty(obj, key, {
+		enumerable: true,
+		configurable: true,
+		get: function reactiveGetter () {
+		  const value = getter ? getter.call(obj) : val
+		  if (Dep.target) {
+			dep.depend()
+			if (childOb) {
+			  childOb.dep.depend()
+			  if (Array.isArray(value)) {
+				dependArray(value)
+			  }
+			}
+		  }
+		  return value
+		},
+		set: function reactiveSetter (newVal) {
+		  const value = getter ? getter.call(obj) : val
+		  /* eslint-disable no-self-compare */
+		  if (newVal === value || (newVal !== newVal && value !== value)) {
+			return
+		  }
+		  /* eslint-enable no-self-compare */
+		  if (process.env.NODE_ENV !== 'production' && customSetter) {
+			customSetter()
+		  }
+		  if (setter) {
+			setter.call(obj, newVal)
+		  } else {
+			val = newVal
+		  }
+		  childOb = !shallow && observe(newVal)
+		  dep.notify()
+		}
+	  })
+	}
+
+我们主要看上面的`get`函数里面实现了什么
+ 
+ 	const dep = new Dep()
+ 	...
+	get: function reactiveGetter () {
+	  const value = getter ? getter.call(obj) : val
+	  if (Dep.target) {
+		dep.depend()
+		if (childOb) {
+		  childOb.dep.depend()
+		  if (Array.isArray(value)) {
+			dependArray(value)
+		  }
+		}
+	  }
+	  return value
+	}
+
+ 上面的代码中，每当去定义data的属性的时候，都会 `const dep = new Dep()` 然后根据`Dep.target`这个变量来执行下面的`dep.depend()`；我们继续看Dep函数是什么？
+### Dep
+	
+	export default class Dep {
+	  static target: ?Watcher;
+	  id: number;
+	  subs: Array<Watcher>;
+
+	  constructor () {
+		this.id = uid++
+		this.subs = []
+	  }
+
+	  addSub (sub: Watcher) {
+		this.subs.push(sub)
+	  }
+
+	  removeSub (sub: Watcher) {
+		remove(this.subs, sub)
+	  }
+
+	  depend () {
+		if (Dep.target) {
+		  Dep.target.addDep(this)
+		}
+	  }
+
+	  notify () {
+		// stabilize the subscriber list first
+		const subs = this.subs.slice()
+		for (let i = 0, l = subs.length; i < l; i++) {
+		  subs[i].update()
+		}
+	  }
+	}
+
+	// the current target watcher being evaluated.
+	// this is globally unique because there could be only one
+	// watcher being evaluated at any time.
+	Dep.target = null
+	const targetStack = []
+
+	export function pushTarget (_target: ?Watcher) {
+	  if (Dep.target) targetStack.push(Dep.target)
+	  Dep.target = _target
+	}
+
+	export function popTarget () {
+	  Dep.target = targetStack.pop()
+	}
+Dep函数的代码虽然不多，但是确实vue双向绑定的实现精妙之处。
+还记得我们上面的Watcher类中get函数下面的`pushTarget(this)`这个方法嘛？可以知道Dep.target此时应该就是我们的`computed`上面的属性的watcher的实例。那么此时就和data下面的属性进行了一个依赖。
+	
+	  addDep (dep: Dep) {
+		const id = dep.id
+		if (!this.newDepIds.has(id)) {
+		  this.newDepIds.add(id)
+		  this.newDeps.push(dep)
+		  if (!this.depIds.has(id)) {
+			dep.addSub(this)
+		  }
+		}
+	  }
+那么data属性的实例的dep对象下面的`this.subs`就拥有了computed下面这个属性的watcher了。
+
+
+### 对上面进行一个总结
+
+
+
+
+
+
+
+
+
 
 
     
