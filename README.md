@@ -1,4 +1,5 @@
-## richard今年的tolist
+
+## richard2018年的Tolist
 - [ ] vue
   - [ ] vue源码阅读
     - [x] computed
@@ -26,5 +27,5 @@
 - [ ] 算法数据结构
   - [x] 排序算法
 - [ ] http
-  - [ ] http权威指南
+  - [x] http权威指南
 - [ ] ...
