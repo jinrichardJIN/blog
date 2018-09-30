@@ -16,7 +16,6 @@
   - [ ] node-express
   - [ ] node-moogoose
   - [ ] next.js
-
 - [ ] react
   - [ ] react-redux
     - [x] connect源码了解
@@ -30,4 +29,5 @@
   - [x] 排序算法
 - [ ] http
   - [x] http权威指南
+- [ ] webpack加深理解 
 - [ ] ...
