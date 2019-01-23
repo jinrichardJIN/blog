@@ -1,6 +1,7 @@
 module.exports = {
     title: 'Hello VuePress',
     description: 'Just playing around',
+    base: "/blog/",
     themeConfig: {
         sidebarDepth: 2,
         displayAllHeaders: true, // 默认值：false
