@@ -1,0 +1,27 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "首先这并不是我的全部，过去没能将自己的碎片化时间整理出来真是是很大一个失误，之前总是急于去接触新的东西，总是会忘记一些积累。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jinrichardJIN/blog.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jinrichardJIN/blog/issues"
+  },
+  "homepage": "https://github.com/jinrichardJIN/blog#readme",
+  "devDependencies": {
+    "vuepress": "^0.14.8"
+  }
+}
