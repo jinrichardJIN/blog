@@ -4,7 +4,7 @@ module.exports = {
     base: "/blog/",
     themeConfig: {
         sidebar: {
-            "/FE/": ["","Js","vue", "react","typescript","redux","next","nuxt"],
+            "/FE/": ["","Js","vue", "react","typescript","redux","next","nuxt","FEinterview"],
             "/guide/": ["", "1"],
             "/Personal/":["","koa","interview","排序算法","vue","nginx","linux"],
 
