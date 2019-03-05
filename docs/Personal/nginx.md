@@ -1,9 +1,5 @@
 # nginx
 
-## 常用命令
-
-### 
-
 #### 1.查看nginx安装目录
 
 - whereis nginx

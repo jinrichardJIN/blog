@@ -1,3 +1,5 @@
+# 常见的polyfill
+
 #### 1.手动实现 myReduce(MDN)
 
 ```js
