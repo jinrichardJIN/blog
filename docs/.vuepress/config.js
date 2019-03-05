@@ -5,7 +5,7 @@ module.exports = {
     themeConfig: {
         sidebar: {
             "/FE/": ["","Js","vue", "react","typescript","redux","next","nuxt","FEinterview"],
-            "/Personal/":["","koa","interview","排序算法","vue","nginx","linux","常见的polyfill"],
+            "/Personal/":["","koa","interview","排序算法","vue","nginx","linux","常见的polyfill","偶尔乱写"],
 
         },
         sidebarDepth: 2,
