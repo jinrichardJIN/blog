@@ -1,2 +1,2 @@
 let i = 1;
-let b = ""
+let b = "xixixi"
