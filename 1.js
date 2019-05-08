@@ -1,1 +1,1 @@
-let i = "lalala";
+let i = 1;
